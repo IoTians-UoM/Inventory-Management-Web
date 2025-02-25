@@ -1,18 +1,19 @@
 import { useState } from 'react'
 import './App.css'
+import "antd/dist/reset.css";
+import Inventory from "./pages/Inventory";
 import Product from './pages/Products'
+
 
 function App() {
   const [] = useState(0)
 
   return (
     <>
-       <div className="App">
-      
+      <Inventory />
       <Product />
-    </div>
     </>
   )
 }
 
-export default App
+export default App;
