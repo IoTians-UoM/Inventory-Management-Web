@@ -28,13 +28,13 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
     try {
       const values = await form.validateFields();
       const newItem: InventoryItem = {
-        product_id: Date.now().toString(),
+        product_id: "1",
         product_name: values.name,
         quantity: values.quantity,
         timestamp: new Date().toISOString(),
       };
 
-      await createInventory([newItem]);
+      await createInventory([newItem]); // Call the createInventory API function to create a new item
       setData((prev) => [...prev, newItem]);
       form.resetFields();
       setIsModalVisible(false);
@@ -59,7 +59,7 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
         timestamp: new Date().toISOString(),
       };
 
-      await createInventory([updatedItem]); // Reuse create for editing
+      await createInventory([updatedItem], ); // Reuse create for editing
       setData((prev) =>
         prev.map((item) => (item.product_id === updatedItem.product_id ? updatedItem : item))
       );
@@ -119,7 +119,7 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
 
       <Table<InventoryItem>
         columns={columns}
-        dataSource={data}
+        dataSource={items}
         rowKey="product_id"
         pagination={{ pageSize: 5 }}
         bordered

@@ -20,6 +20,7 @@ export async function createInventory(inventoryItems: InventoryItem[]) {
       message_id: Date.now().toString(),
       timestamp: Date.now().toString(),
       payload: {
+        inventory_id: inventoryItems[0].inventory_id,
         inventory_items: inventoryItems,
         timestamp: new Date().toISOString(),
       },

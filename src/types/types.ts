@@ -54,6 +54,7 @@ type Product = {
 }
 
 type InventoryItem = {
+    inventory_id?: string,
     product_id: string,
     product_name?: string,
     quantity: number,
