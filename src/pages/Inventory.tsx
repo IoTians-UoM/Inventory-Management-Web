@@ -88,6 +88,12 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
     { title: "ID", dataIndex: "product_id", key: "key" },
     { title: "Item Name", dataIndex: "product_name", key: "name" },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+    { 
+      title: "Date/Time", 
+      dataIndex: "timestamp", 
+      key: "timestamp",
+      render: (text: string) => new Date(text).toLocaleString() 
+    },
     {
       title: "Actions",
       key: "actions",
@@ -96,7 +102,6 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
           <Button type="primary" icon={<EditOutlined />} onClick={() => showEditModal(record)} />
           <Popconfirm
             title="Are you sure you want to delete this item?"
-            //onConfirm={() => handleDelete(record.product_id)}
             onConfirm={() => handleDelete(record.product_id)} 
             okText="Yes"
             cancelText="No"
