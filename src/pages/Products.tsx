@@ -1,21 +1,8 @@
-import React, { useState } from "react";
-import {
-  Space,
-  Table,
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Spin,
-  Typography,
-} from "antd";
-import {
-  EyeOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Space, Table, Button, Modal, Form, Input, InputNumber, Typography } from "antd";
+import { EyeOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { getAllProducts } from "../api/product";
+import { Message, Product as ProductType } from "../types/types";
 
 const { Column } = Table;
 const { Text } = Typography;
@@ -28,48 +15,17 @@ interface DataType {
   existingQuantity: number;
 }
 
-const initialData: DataType[] = [
-  {
-    key: "1",
-    id: 1,
-    productName: "Product 1",
-    price: 100,
-    existingQuantity: 100,
-  },
-  {
-    key: "2",
-    id: 2,
-    productName: "Product 2",
-    price: 150,
-    existingQuantity: 150,
-  },
-  {
-    key: "3",
-    id: 3,
-    productName: "Product 3",
-    price: 50,
-    existingQuantity: 50,
-  },
-  {
-    key: "4",
-    id: 4,
-    productName: "Product 4",
-    price: 50,
-    existingQuantity: 50,
-  },
-];
-
-export default function Product() {
-  const [data, setData] = useState<DataType[]>(initialData);
+export default function Product({items}:{items:ProductType[]}) {
+  const [data, setData] = useState<Message[]>([]);  // Use state for products
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
-  const [isWriteTagModalVisible, setIsWriteTagModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [scanComplete, setScanComplete] = useState(false);
   const [viewProduct, setViewProduct] = useState<DataType | null>(null);
   const [form] = Form.useForm();
 
-  // Create new product
+  useEffect(() => {
+    getAllProducts();
+  }, []); // Only run on mount
+
   const handleCreateProduct = (values: any) => {
     const newProduct: DataType = {
       key: (data.length + 1).toString(),
@@ -79,33 +35,18 @@ export default function Product() {
       existingQuantity: values.existingQuantity,
     };
 
-    setData((prevData) => [...prevData, newProduct]);
+    // setData((prevData) => [...prevData, newProduct]);
     form.resetFields();
     setIsModalVisible(false);
   };
 
-  // Delete product
   const handleDelete = (key: React.Key) => {
-    setData((prevData) => prevData.filter((item) => item.key !== key));
+    // setData((prevData) => prevData.filter((item) => item.key !== key));
   };
 
-  // View product details
   const handleView = (record: DataType) => {
     setViewProduct(record);
     setIsViewModalVisible(true);
-  };
-
-  // Open Write Tag modal and start loading
-  const handleWriteTag = () => {
-    setIsWriteTagModalVisible(true);
-    setLoading(true);
-    setScanComplete(false);
-
-    // Simulate 10-second scan time
-    setTimeout(() => {
-      setLoading(false);
-      setScanComplete(true);
-    }, 10000);
   };
 
   return (
@@ -129,19 +70,11 @@ export default function Product() {
       </div>
 
       {/* Table */}
-      <Table<DataType> dataSource={data} bordered className="shadow-lg">
+      <Table<ProductType> dataSource={items || []} bordered className="shadow-lg">
         <Column title="ID" dataIndex="id" key="id" />
-        <Column
-          title="Product Name"
-          dataIndex="productName"
-          key="productName"
-        />
+        <Column title="Product Name" dataIndex="name" key="productName" />
         <Column title="Price" dataIndex="price" key="price" />
-        <Column
-          title="Existing Quantity"
-          dataIndex="existingQuantity"
-          key="existingQuantity"
-        />
+        <Column title="Existing Quantity" dataIndex="quantity" key="existingQuantity" />
         <Column
           title="Action"
           key="action"
@@ -166,9 +99,9 @@ export default function Product() {
               <Button
                 type="link"
                 icon={<EditOutlined />}
-                onClick={handleWriteTag}
+                onClick={() => {}}
               >
-                Write Tag
+                Edit
               </Button>
             </Space>
           )}
@@ -182,39 +115,37 @@ export default function Product() {
         onCancel={() => setIsModalVisible(false)}
         footer={null}
       >
-
         <Form form={form} layout="vertical" onFinish={handleCreateProduct} style={{ maxWidth: "600px" }}>
-  <Form.Item
-    label="Product Name"
-    name="productName"
-    rules={[{ required: true, message: "Please input product name!" }]}
-    style={{ width: "100%" }}
-  >
-    <Input />
-  </Form.Item>
-  <Form.Item
-    label="Price"
-    name="price"
-    rules={[{ required: true, message: "Please input product price!" }]}
-    style={{ width: "100%" }}
-  >
-    <InputNumber min={0} style={{ width: "100%" }} />
-  </Form.Item>
-  <Form.Item
-    label="Existing Quantity"
-    name="existingQuantity"
-    rules={[{ required: true, message: "Please input existing quantity!" }]}
-    style={{ width: "100%" }}
-  >
-    <InputNumber min={0} style={{ width: "100%" }} />
-  </Form.Item>
-  <Form.Item style={{ width: "100%" }}>
-    <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
-      Create Product
-    </Button>
-  </Form.Item>
-</Form>
-
+          <Form.Item
+            label="Product Name"
+            name="productName"
+            rules={[{ required: true, message: "Please input product name!" }]}
+            style={{ width: "100%" }}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[{ required: true, message: "Please input product price!" }]}
+            style={{ width: "100%" }}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            label="Existing Quantity"
+            name="existingQuantity"
+            rules={[{ required: true, message: "Please input existing quantity!" }]}
+            style={{ width: "100%" }}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item style={{ width: "100%" }}>
+            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+              Create Product
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
 
       {/* View Product Details Modal */}
@@ -222,62 +153,16 @@ export default function Product() {
         title="Product Details"
         open={isViewModalVisible}
         onCancel={() => setIsViewModalVisible(false)}
-        footer={[
-          <Button key="close" onClick={() => setIsViewModalVisible(false)}>
-            Close
-          </Button>,
-        ]}
+        footer={[<Button key="close" onClick={() => setIsViewModalVisible(false)}>Close</Button>]}
       >
         {viewProduct && (
           <div>
-            <p>
-              <strong>ID:</strong> {viewProduct.id}
-            </p>
-            <p>
-              <strong>Product Name:</strong> {viewProduct.productName}
-            </p>
-            <p>
-              <strong>Price:</strong> {viewProduct.price}
-            </p>
-            <p>
-              <strong>Existing Quantity:</strong> {viewProduct.existingQuantity}
-            </p>
+            <p><strong>ID:</strong> {viewProduct.id}</p>
+            <p><strong>Product Name:</strong> {viewProduct.productName}</p>
+            <p><strong>Price:</strong> {viewProduct.price}</p>
+            <p><strong>Existing Quantity:</strong> {viewProduct.existingQuantity}</p>
           </div>
         )}
-      </Modal>
-
-      <Modal
-        title="Write RFID Tag"
-        open={isWriteTagModalVisible}
-        onCancel={() => setIsWriteTagModalVisible(false)}
-        footer={null}
-        style={{
-          top: 40,
-          width: 600,
-          // height: 600,  // You can still set a fixed height here if needed
-        }}
-        styles={{
-          body: {
-            // Use the 'body' key within 'styles'
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%", // Important for content to fill the modal
-            padding: 20,
-          },
-        }}
-      >
-        <div className="flex justify-center items-center flex-col gap-4">
-          {loading ? (
-            <>
-              <Spin size="large" />
-              <Text>Waiting for tag scan... (10 seconds)</Text>
-            </>
-          ) : scanComplete ? (
-            <Text type="success">Tag scanned successfully!</Text>
-          ) : null}
-        </div>
       </Modal>
     </div>
   );
