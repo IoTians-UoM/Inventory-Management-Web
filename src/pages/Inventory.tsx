@@ -1,23 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Space, InputNumber, Modal, Form, Input, Select, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { InventoryItem } from "../types/types";
+import { getAllInventory } from "../api/inventory";
 
 const { Option } = Select;
 
-interface InventoryItem {
-    key: string;
-    name: string;
-    category: string;
-    quantity: number;
-    price: number;
-    total: number;
-}
 
-const Inventory: React.FC = () => {
+export default function Inventory({items}:{items:InventoryItem[]}) {
     const [data, setData] = useState<InventoryItem[]>([
-        { key: "1", name: "Laptop", category: "Electronics", quantity: 10, price: 800, total: 8000 },
-        { key: "2", name: "Office Chair", category: "Furniture", quantity: 15, price: 120, total: 1800 },
-        { key: "3", name: "Mouse", category: "Accessories", quantity: 50, price: 20, total: 1000 },
+    
     ]);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -26,34 +18,25 @@ const Inventory: React.FC = () => {
     const [editForm] = Form.useForm();
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-
     const showModal = () => {
         setIsModalVisible(true);
     };
 
+    useEffect(() => {
+        getAllInventory();
+    }, []);
 
     const handleOk = () => {
         form.validateFields().then((values) => {
-            const newItem: InventoryItem = {
-                key: (data.length + 1).toString(),
-                name: values.name,
-                category: values.category,
-                quantity: values.quantity,
-                price: values.price,
-                total: values.quantity * values.price,
-            };
-            setData([...data, newItem]);
             form.resetFields();
             setIsModalVisible(false);
         });
     };
 
-
     const handleCancel = () => {
         setIsModalVisible(false);
         setIsEditModalVisible(false);
     };
-
 
     const showEditModal = (record: InventoryItem) => {
         setEditingItem(record);
@@ -61,12 +44,11 @@ const Inventory: React.FC = () => {
         setIsEditModalVisible(true);
     };
 
-
     const handleEditOk = () => {
         editForm.validateFields().then((values) => {
             setData((prevData) =>
                 prevData.map((item) =>
-                    item.key === editingItem?.key ? { ...item, ...values, total: values.quantity * values.price } : item
+                    item.product_id === editingItem?.product_id ? { ...item, ...values, total: values.quantity * values.price } : item
                 )
             );
             setIsEditModalVisible(false);
@@ -74,19 +56,15 @@ const Inventory: React.FC = () => {
         });
     };
 
-
     const handleDelete = (key: string) => {
-        setData((prevData) => prevData.filter(item => item.key !== key));
+        setData((prevData) => prevData.filter(item => item.product_id !== key));
     };
 
-
     const columns = [
-        { title: "ID", dataIndex: "key", key: "key" },
-        { title: "Item Name", dataIndex: "name", key: "name" },
-        { title: "Category", dataIndex: "category", key: "category" },
+        { title: "ID", dataIndex: "product_id", key: "key" },
+        { title: "Item Name", dataIndex: "product_name", key: "name" },
+      
         { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-        { title: "Unit Price", dataIndex: "price", key: "price", render: (price: number) => `Rs ${price}` },
-        { title: "Total Value", dataIndex: "total", key: "total", render: (total: number) => `Rs ${total}` },
         {
             title: "Actions",
             key: "actions",
@@ -95,7 +73,7 @@ const Inventory: React.FC = () => {
                     <Button type="primary" icon={<EditOutlined />} onClick={() => showEditModal(record)} />
                     <Popconfirm
                         title="Are you sure you want to delete this item?"
-                        onConfirm={() => handleDelete(record.key)}
+                        onConfirm={() => handleDelete(record.product_id)}
                         okText="Yes"
                         cancelText="No"
                     >
@@ -107,33 +85,21 @@ const Inventory: React.FC = () => {
     ];
 
     return (
-        <div style={{
-          
-        }}>
-            {/* <h2 style={{ color: "" }}>Inventory Management Table</h2>
-
-            <Button type="primary" icon={<PlusOutlined />} onClick={showModal} style={{ marginBottom: "10px" }}>
-                Add Inventory Item
-            </Button> */}
+        <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: "600" }}>Inventory</h2>
-            <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                Create New Inventory
-            </Button>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: "600" }}>Inventory</h2>
+                <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    Create New Inventory
+                </Button>
             </div>
 
-
-            <Table
-                // columns={columns}
-                // dataSource={data}
-                // style={{ width: "80%", height: "80%", flex: 1, overflow: "auto" }}
+            <Table<InventoryItem>
                 columns={columns}
-                dataSource={data}
+                dataSource={items || []}
                 pagination={{ pageSize: 5 }}
                 bordered
                 style={{ width: "100%", maxWidth: "1200px", backgroundColor: "white", borderRadius: "8px", overflow: "hidden" }}
             />
-
 
             <Modal title="Add Inventory Item" open={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form} layout="vertical">
@@ -155,7 +121,6 @@ const Inventory: React.FC = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-
 
             <Modal title="Edit Inventory Item" open={isEditModalVisible} onOk={handleEditOk} onCancel={handleCancel}>
                 <Form form={editForm} layout="vertical">
@@ -179,6 +144,4 @@ const Inventory: React.FC = () => {
             </Modal>
         </div>
     );
-};
-
-export default Inventory;
+}
