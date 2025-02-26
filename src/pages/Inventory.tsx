@@ -107,17 +107,31 @@ const Inventory: React.FC = () => {
     ];
 
     return (
-        <div style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", backgroundColor: "#282828", color: "white", padding: "20px" }}>
-            <h2 style={{ color: "white" }}>Inventory Management Table</h2>
+        <div style={{
+          
+        }}>
+            {/* <h2 style={{ color: "" }}>Inventory Management Table</h2>
 
             <Button type="primary" icon={<PlusOutlined />} onClick={showModal} style={{ marginBottom: "10px" }}>
                 Add Inventory Item
+            </Button> */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: "600" }}>Inventory</h2>
+            <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                Create New Inventory
             </Button>
+            </div>
+
 
             <Table
+                // columns={columns}
+                // dataSource={data}
+                // style={{ width: "80%", height: "80%", flex: 1, overflow: "auto" }}
                 columns={columns}
                 dataSource={data}
-                style={{ width: "80%", height: "80%", flex: 1, overflow: "auto" }}
+                pagination={{ pageSize: 5 }}
+                bordered
+                style={{ width: "100%", maxWidth: "1200px", backgroundColor: "white", borderRadius: "8px", overflow: "hidden" }}
             />
 
 
