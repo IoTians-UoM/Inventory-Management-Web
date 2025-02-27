@@ -4,8 +4,10 @@ import "antd/dist/reset.css";
 import Inventory from "./pages/Inventory";
 import Product from './pages/Products';
 import { useEffect, useState } from 'react';
-import initWS from './utils/websocket-util';
+import initWS, { processQueue } from './utils/websocket-util';
 import { Action, InventoryItem, InventoryPayload, Message, ProductPayload, Product as ProductType } from './types/types';
+import { getAllInventory } from './api/inventory';
+import { getAllProducts } from './api/product';
 
 function App() {
   const [products, setProducts] = useState<ProductType[]>([]); 
@@ -13,20 +15,37 @@ function App() {
 
   // Pass only the `url` and `setData` function to `initWS`
   useEffect(() => {
-    initWS('ws://localhost:8000', setMessages);
+    initWS('ws://localhost:8000');
+    
+    setInterval(() => {
+      const message = processQueue()
+      setMessages(message)
+    }, 1000);
+
+    setTimeout(() => {
+      getAllProducts()
+      getAllInventory()
+    }, 1000);
+    
   }, []);
 
   const setMessages = (msg: string) => {
+    if (!msg) return
     const message = JSON.parse(msg);
-    console.log('Message:', message);
+    console.log('Message in:', message);
     // setData(prev => [...prev, message]);
     switch (message.action) {
-      case Action.PRODUCT_GET_ALL:
-        setProducts((message.payload as ProductPayload).products || []);
+      case Action.PRODUCT_GET_ALL:{
+        console.log("p",message.payload)
+        const p = (message.payload as ProductPayload).products || [];
+        setProducts(prev=>[...prev,...p.filter((p: ProductType) => !prev.find((prevItem: ProductType) => prevItem.id === p.id))]);
+        break; 
+      }
+      case Action.INVENTORY_GET_ALL:{
+        const i = (message.payload as InventoryPayload).inventory || [];
+        setInventory(prev=>[...prev,...i.filter((i: InventoryItem) => !prev.find((prevItem: InventoryItem) => prevItem.product_id === i.product_id))]);
         break;
-      case Action.INVENTORY_GET_ALL:
-        setInventory((message.payload as InventoryPayload).inventory_items || []);
-        break;
+      }
       default:
         break;
     }

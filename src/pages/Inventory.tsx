@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Button, Space, InputNumber, Modal, Form, Input, Select, Popconfirm, message } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { InventoryItem } from "../types/types";
-import { getAllInventory, createInventory, deleteInventory } from "../api/inventory";
+import { createInventory, deleteInventory } from "../api/inventory";
 
-const { Option } = Select;
+
 
 export default function Inventory({ items }: { items: InventoryItem[] }) {
   const [data, setData] = useState<InventoryItem[]>([]);
@@ -15,10 +15,9 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
   useEffect(() => {
-      setInterval(() => {
-        getAllInventory();
-      }, 10000)
-    }, []);
+    setData(items || []); // Fetch inventory on load
+     // Populate table with incoming props
+  }, [items]);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -125,7 +124,7 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
 
       <Table<InventoryItem>
         columns={columns}
-        dataSource={items}
+        dataSource={data}
         rowKey="product_id"
         pagination={{ pageSize: 5 }}
         bordered

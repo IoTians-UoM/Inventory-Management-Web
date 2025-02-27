@@ -1,8 +1,9 @@
 import { Message } from "../types/types";
 
 let socket: WebSocket | null = null;
+const messageQueue:Message[] = []
 
-export default function initWS(url: string, setIncomingQueue: (msg: string) => void) {
+export default function initWS(url: string) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     return socket;
   }
@@ -20,7 +21,8 @@ export default function initWS(url: string, setIncomingQueue: (msg: string) => v
       //   setIncomingQueue(JSON.parse(event.data));
       //   return;
       // }
-      setIncomingQueue(event.data);
+      // setIncomingQueue(event.data);
+      messageQueue.push(event.data)
     } catch (error) {
       console.error("Error parsing WebSocket message:", error);
     }
@@ -31,7 +33,7 @@ export default function initWS(url: string, setIncomingQueue: (msg: string) => v
     // Attempt to reconnect after a delay
     setTimeout(() => {
       console.log("Reconnecting WebSocket...");
-      initWS(url, setIncomingQueue);
+      initWS(url);
     }, 3000); // 3-second delay before reconnecting
   };
 
@@ -49,4 +51,9 @@ export function sendWSMessage(message: Message) {
   } else {
     console.warn("WebSocket not connected. Message not sent.");
   }
+}
+
+export const processQueue = ():Message|null => {
+  if (messageQueue.length === 0) return null;
+  return messageQueue.shift() as Message
 }

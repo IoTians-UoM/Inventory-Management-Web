@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Space, Table, Button, Modal, Form, Input, InputNumber, Typography, Spin, message } from "antd";
-import { EyeOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {  DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { getAllProducts, createProduct, deleteProduct, writeTag } from "../api/product";  // Assuming these functions are imported
-import { Message, Product as ProductType } from "../types/types";
+import {  Product as ProductType } from "../types/types";
 
 const { Column } = Table;
 const { Text } = Typography;
 
-interface DataType {
-  key: React.Key;
-  id: number;
-  productName: string;
-  price: number;
-  existingQuantity: number;
-}
 
 export default function Product({ items }: { items: ProductType[] }) {
   const [data, setData] = useState<ProductType[]>(items || []);
@@ -52,10 +45,8 @@ export default function Product({ items }: { items: ProductType[] }) {
   };
 
   useEffect(() => {
-    setInterval(() => {
-      getAllProducts();
-    }, 10000)
-  }, []);
+    setData(items || []);
+  }, [items]);
 
   const openCreateModal = () => {
     setIsEdit(false);
