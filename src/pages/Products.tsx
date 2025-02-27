@@ -52,7 +52,9 @@ export default function Product({ items }: { items: ProductType[] }) {
   };
 
   useEffect(() => {
-    getAllProducts();
+    setInterval(() => {
+      getAllProducts();
+    }, 10000)
   }, []);
 
   const openCreateModal = () => {

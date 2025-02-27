@@ -15,9 +15,10 @@ export default function Inventory({ items }: { items: InventoryItem[] }) {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
   useEffect(() => {
-    getAllInventory(); // Fetch inventory on load
-     // Populate table with incoming props
-  }, []);
+      setInterval(() => {
+        getAllInventory();
+      }, 10000)
+    }, []);
 
   const showModal = () => {
     setIsModalVisible(true);
